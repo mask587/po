@@ -1,0 +1,43 @@
+name: Build Flutter APK from ZIP
+
+on:
+  push:
+    branches: [ "main" ]  # Run on push to main branch
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      # 1️⃣ Checkout the repo
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      # 2️⃣ Unzip the uploaded project
+      - name: Extract Project ZIP
+        run: unzip -o *.zip -d project
+
+      # 3️⃣ Install Flutter
+      - name: Install Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          channel: stable
+
+      # 4️⃣ Get Flutter dependencies
+      - name: Get Packages
+        run: |
+          cd project
+          flutter pub get
+
+      # 5️⃣ Build release APK
+      - name: Build APK
+        run: |
+          cd project
+          flutter build apk --release
+
+      # 6️⃣ Upload APK as artifact
+      - name: Upload APK
+        uses: actions/upload-artifact@v4
+        with:
+          name: app-release
+          path: project/build/app/outputs/flutter-apk/app-release.apk
